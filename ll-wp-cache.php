@@ -27,11 +27,11 @@ if (preg_match('|^\/([0-9]{4}\/[0-9]{2}\/[0-9]{2})\/|', $_SERVER['REQUEST_URI'],
 		} elseif ($age == 1) {
 			$max_age = 60*30; //30 minutes
 		} elseif ($age >= 2 && $age <= 7) {
-			$max_age = 3600 * $age - 3600; //$age -1 day
+			$max_age = 86400 * $age - 86400; //$age -1 day
 		} elseif ($age > 7 && $age <= 30) {
-			$max_age = 3600 * 7; //1 week
+			$max_age = 86400 * 7; //1 week
 		} else {
-			$max_age = 3600 * 30; //1 month
+			$max_age = 86400 * 30; //1 month
 		}
 		header('Cache-Control: public, '. $control .'max-age='.$max_age);
 		//header('Expires: '.gmdate('D, d M Y H:i:s \G\M\T', time() + $max_age));
