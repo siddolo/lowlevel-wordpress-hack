@@ -38,6 +38,7 @@ if (file_exists(WPBAN_DBFILE) && $buffer = file_get_contents(WPBAN_DBFILE)) {
 
 // Count attempt
 if (
+	$_SERVER['REQUEST_METHOD'] === 'POST' &&
 	isset($addressList[$srcAddress]) && 
 	isset($addressList[$srcAddress]['attempt']) && 
 	isset($addressList[$srcAddress]['last']) && 
