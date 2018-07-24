@@ -73,7 +73,7 @@ if (
 }
 
 // Update DB
-file_put_contents(WPBAN_DBFILE, serialize($addressList));
+file_put_contents(WPBAN_DBFILE, serialize($addressList), LOCK_EX);
 
 // If banned, go away
 if (
