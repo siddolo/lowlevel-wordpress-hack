@@ -33,7 +33,7 @@ if (file_exists(WPBAN_DBFILE) && $buffer = file_get_contents(WPBAN_DBFILE)) {
 	$addressList = array();
 }
 
-// Add premanent ban here
+// Add permanent ban here
 // $addressList['94.142.233.173'] = array('banned' => TRUE);
 
 // Count attempt
