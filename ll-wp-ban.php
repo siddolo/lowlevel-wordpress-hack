@@ -18,6 +18,17 @@ define('WPBAN_REQUEST_MAX', 5);		// Number of requests which trigger ban action
 define('WPBAN_REQUEST_TIME', 10);	// Request is counted if the time difference between two request is lower than REQUEST_TIME (in seconds)
 define('WPBAN_BAN_TIME', 60 * 10);	// Ban duration (in seconds)
 
+// Permanet referral ban, add your own
+$bannedReferral = array(
+	'anonymousfox.co'
+);
+
+// Permanent IP ban, add your own
+$bannedIp = array(
+	//'94.142.233.173'
+);
+
+
 // Get source IP address from X-Forwarded-For HTTP Header
 $headers = getallheaders();
 if (preg_match('|(.*), .*|', $headers['X-Forwarded-For'], $matches)) {
@@ -35,6 +46,16 @@ if (file_exists(WPBAN_DBFILE) && $buffer = file_get_contents(WPBAN_DBFILE)) {
 
 // Add permanent ban here
 // $addressList['94.142.233.173'] = array('banned' => TRUE);
+
+// Ban if referral match
+if (in_array($_SERVER['HTTP_REFERER'], $bannedReferral)) {
+	$addressList[$srcAddress] = array('banned' => TRUE);
+}
+
+// Ban permeanent IP
+foreach ($bannedIp as $address) {
+	$addressList[$address] = array('banned' => TRUE);
+}
 
 // Count attempt
 if (
