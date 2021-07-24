@@ -28,6 +28,7 @@ $bannedIp = array(
 	//'94.142.233.173'
 );
 
+// ************************* END CONFIGURATION *************************
 
 // Get source IP address from X-Forwarded-For HTTP Header
 $headers = getallheaders();
@@ -68,7 +69,7 @@ if (
 		$addressList[$srcAddress]['attempt']++;
 	}
 	if ($addressList[$srcAddress]['attempt'] == WPBAN_REQUEST_MAX) {
-		$addressList[$srcAddress]['banned'] = TRUE;	//ban
+		$addressList[$srcAddress]['banned'] = TRUE;
 	}
 } else {
 	$addressList[$srcAddress] = array(
