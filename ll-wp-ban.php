@@ -29,6 +29,7 @@ $bannedIp = array(
 );
 
 // ************************* END CONFIGURATION *************************
+$permanentFlag = FALSE;
 
 // Get source IP address from X-Forwarded-For HTTP Header
 $headers = getallheaders();
@@ -48,47 +49,51 @@ if (file_exists(WPBAN_DBFILE) && $buffer = file_get_contents(WPBAN_DBFILE)) {
 // Ban if referral match
 if (in_array($_SERVER['HTTP_REFERER'], $bannedReferral)) {
 	$addressList[$srcAddress] = array('banned' => TRUE);
+	$permanentFlag = TRUE;
 }
 
 // Ban permeanent IP
 foreach ($bannedIp as $address) {
 	$addressList[$address] = array('banned' => TRUE);
+	$permanentFlag = TRUE;
 }
 
 // Count attempt
-if (
-	$_SERVER['REQUEST_METHOD'] === 'POST' &&
-	isset($addressList[$srcAddress]) && 
-	isset($addressList[$srcAddress]['attempt']) && 
-	isset($addressList[$srcAddress]['last']) && 
-	isset($addressList[$srcAddress]['prev'])
-) {
-	$addressList[$srcAddress]['prev'] = $addressList[$srcAddress]['last'];
-	$addressList[$srcAddress]['last'] = time();
-	if ($addressList[$srcAddress]['last'] - $addressList[$srcAddress]['prev'] <= WPBAN_REQUEST_TIME) {
-		$addressList[$srcAddress]['attempt']++;
+if (!$permanentFlag) {
+	if (
+		$_SERVER['REQUEST_METHOD'] === 'POST' &&
+		isset($addressList[$srcAddress]) && 
+		isset($addressList[$srcAddress]['attempt']) && 
+		isset($addressList[$srcAddress]['last']) && 
+		isset($addressList[$srcAddress]['prev'])
+	) {
+		$addressList[$srcAddress]['prev'] = $addressList[$srcAddress]['last'];
+		$addressList[$srcAddress]['last'] = time();
+		if ($addressList[$srcAddress]['last'] - $addressList[$srcAddress]['prev'] <= WPBAN_REQUEST_TIME) {
+			$addressList[$srcAddress]['attempt']++;
+		}
+		if ($addressList[$srcAddress]['attempt'] == WPBAN_REQUEST_MAX) {
+			$addressList[$srcAddress]['banned'] = TRUE;
+		}
+	} else {
+		$addressList[$srcAddress] = array(
+			'attempt' => 1, 
+			'prev' => time(), 
+			'last' => time(), 
+			'banned' => FALSE
+		);
 	}
-	if ($addressList[$srcAddress]['attempt'] == WPBAN_REQUEST_MAX) {
-		$addressList[$srcAddress]['banned'] = TRUE;
-	}
-} else {
-	$addressList[$srcAddress] = array(
-		'attempt' => 1, 
-		'prev' => time(), 
-		'last' => time(), 
-		'banned' => FALSE
-	);
-}
 
-// Check if it is time to unban it
-if (
-	isset($addressList[$srcAddress]) && 
-	isset($addressList[$srcAddress]['last']) && 
-	isset($addressList[$srcAddress]['prev']) && 
-	($addressList[$srcAddress]['last'] - $addressList[$srcAddress]['prev'] >= WPBAN_BAN_TIME)
-) {
-	// unban
-	unset($addressList[$srcAddress]);
+	// Check if it is time to unban it
+	if (
+		isset($addressList[$srcAddress]) && 
+		isset($addressList[$srcAddress]['last']) && 
+		isset($addressList[$srcAddress]['prev']) && 
+		($addressList[$srcAddress]['last'] - $addressList[$srcAddress]['prev'] >= WPBAN_BAN_TIME)
+	) {
+		// unban
+		unset($addressList[$srcAddress]);
+	}
 }
 
 // Update DB
